@@ -14,4 +14,7 @@ public class Card {
     public void moveCard(CardLocation newLocation) {
         location = newLocation;
     }
+    public CardLocation getLocation(){
+        return location;
+    }
 }

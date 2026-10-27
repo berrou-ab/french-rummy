@@ -52,9 +52,32 @@ public class Deck {
         return false;
     }
     public void reShuffle(){ // If the stock has been depleted and the game is still going on
-        // 0. the last discarded card should be left in the discard
-        // 1. recalculate drawnCardsCount
-        // 2. recalculate topCardIndex
+        List<Card> newStock = new ArrayList<>();
+        List<Card> notStock = new ArrayList<>();
+        Card topCard = null;
+        int notStockCounter=0;
+
+        for(int i=0; i<106;i++){
+            if(deck.get(i).getLocation()== CardLocation.DISCARD){
+                if(i != topCardIndex){
+                    deck.get(i).moveCard(CardLocation.STOCK);
+                    newStock.add(deck.get(i));   
+                }
+                else{
+                    topCard = deck.get(i);
+                }
+            }
+            else{
+                notStock.add(deck.get(i));
+                notStockCounter++;
+            }
+        }
+        drawnCardsCount = notStockCounter+1; // +1 for the topCard
+        topCardIndex = notStockCounter;
+        deck.clear();
+        deck.addAll(notStock);
+        deck.add(topCard);
+        deck.addAll(newStock);
         
     }
 }
