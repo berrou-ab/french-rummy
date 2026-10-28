@@ -14,11 +14,11 @@ public class Deck {
     public Deck() {
         for(int i=0; i<4; i++){
             for(int j=0; j<13; j++){
-                deck.add(new Card(suits[i], ranks[j], false));
+                deck.add(new Card(suits[i], ranks[j], false, ranks[j].getValue()));
             }
         }
-        deck.add(new Card(null,null,true)); // 1st joker
-        deck.add(new Card(null,null,true)); // 2nd joker
+        deck.add(new Card(null,null,true,0)); // 1st joker
+        deck.add(new Card(null,null,true,0)); // 2nd joker
     }
     public void shuffle(){  // At the start of the game
         Collections.shuffle(deck);
