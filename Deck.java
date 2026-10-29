@@ -10,6 +10,8 @@ public class Deck {
     Rank[] ranks = Rank.values();
     private int drawnCardsCount = 0;
     private int topCardIndex = -1;
+    private List<List<Card>> table = new ArrayList<>();
+    private List<List<Integer>> tableDescription = new ArrayList<>(); // Check the method melding()
 
     public Deck() {
         for(int i=0; i<4; i++){
@@ -44,11 +46,43 @@ public class Deck {
     }
 
     // TBD
-    public boolean melding(int... cards){ 
+    public boolean melding(Card... cards){ 
         // 51 pts minimum for first meld. Verifications to be done in class Players
+        boolean sameRank = true;
+        boolean sameSuit = true;
+        boolean valid = true;
+        Suit currentSuit = null;
+        Rank currentRank = null;
+        List<Integer> ranks = new ArrayList<>();
+
+        while(sameRank || sameSuit){
+            for( Card c : cards){
+                 if(c.isJoker) continue;
+                 if(currentRank == null){
+                    currentRank = c.rank;
+                    currentSuit = c.suit;
+                 }  
+                 if(c.rank != currentRank) sameRank = false;
+                 if(c.suit != currentSuit) sameSuit = false;
+                 ranks.add(c.rank.getValue()); // Insert with the correct order
+            }
+            for (Integer r : ranks){
+                if (sameRank) break;
+                // Check if it is contiguous
+
+            }
+            if (sameRank && valid){
+                // Add to table
+            }
+
+        }
         return false;
+
     }
     public boolean layingOff(int card){
+        for(List<Card> meld : table){
+
+        }
         return false;
     }
     public void reShuffle(){ // If the stock has been depleted and the game is still going on

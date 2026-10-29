@@ -1,10 +1,10 @@
 public class Card {
 
     private CardLocation location;
-    private Suit suit;
-    private Rank rank;
-    private boolean isJoker;
-    private int value;
+    public final Suit suit;
+    public final Rank rank;
+    public final boolean isJoker;
+    public final int value;
     
     public Card(Suit s, Rank r, boolean joker, int val) {
         rank = r;
@@ -18,8 +18,5 @@ public class Card {
     }
     public CardLocation getLocation(){
         return location;
-    }
-    public int getCardValue(){
-        return value;
     }
 }
