@@ -13,21 +13,25 @@ public class Deck {
     private List<List<Card>> table = new ArrayList<>();
     private List<List<Integer>> tableDescription = new ArrayList<>(); // Check the method melding()
 
-    public Deck() {
-        for(int i=0; i<4; i++){
-            for(int j=0; j<13; j++){
-                deck.add(new Card(suits[i], ranks[j], false, ranks[j].getValue()));
+    public Deck(int decksCount, int jokersCount) {
+        // Decks
+        for(int k=0; k< decksCount;k++){
+            for(int i=0; i<4; i++){
+                for(int j=0; j<13; j++)
+                    deck.add(new Card(suits[i], ranks[j], false, ranks[j].getValue()));
             }
         }
-        deck.add(new Card(null,null,true,0)); // 1st joker
-        deck.add(new Card(null,null,true,0)); // 2nd joker
+        // Jokers
+        for(int i=0; i< jokersCount;i++)
+            deck.add(new Card(null,null,true,0));
+
     }
     public void shuffle(){  // At the start of the game
         Collections.shuffle(deck);
     }
     public boolean drawCard(CardLocation player) {
-        if (drawnCardsCount > 105) reShuffle();
-        if (drawnCardsCount > 105){
+        if (drawnCardsCount > deck.size()-1) reShuffle();
+        if (drawnCardsCount > deck.size()-1){
             deck.get(drawnCardsCount++).moveCard(player);
             return true;
         }
@@ -57,14 +61,21 @@ public class Deck {
 
         while(sameRank || sameSuit){
             for( Card c : cards){
-                 if(c.isJoker) continue;
-                 if(currentRank == null){
+                if(c.isJoker) continue;
+                if(currentRank == null){
                     currentRank = c.rank;
                     currentSuit = c.suit;
-                 }  
-                 if(c.rank != currentRank) sameRank = false;
-                 if(c.suit != currentSuit) sameSuit = false;
-                 ranks.add(c.rank.getValue()); // Insert with the correct order
+                }  
+                if(c.rank != currentRank) sameRank = false;
+                if(c.suit != currentSuit) sameSuit = false;
+                
+                // Add the ranks of each card in the proposed meld to a list in ascending order
+                int index;
+                for(index=0; index<ranks.size();index++){
+                    if(c.rank.getValue() < ranks.get(index)) break; 
+                }
+                ranks.add(index,c.rank.getValue()); // if(ranks.size() == 0) 
+                 
             }
             for (Integer r : ranks){
                 if (sameRank) break;
