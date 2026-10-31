@@ -10,8 +10,7 @@ public class Deck {
     Rank[] ranks = Rank.values();
     private int drawnCardsCount = 0;
     private int topCardIndex = -1;
-    private List<List<Card>> table = new ArrayList<>();
-    private List<List<Integer>> tableDescription = new ArrayList<>(); // Check the method melding()
+    private List<List<Card>> table = new ArrayList<>(); // In each row, cards are in ascending order
 
     public Deck(int decksCount, int jokersCount) {
         // Decks
@@ -48,18 +47,23 @@ public class Deck {
             discardCard(0);
         }
     }
+    // 51 pts minimum for first meld. Verifications to be done in class Player
+    // Cards are assumed arranged in the right order going into this method
+    public int melding(List<Card> cards){
+        if(cards.size() < 3 || cards.size() > 13) return -1; // Minimum 3 cards. One of each rank maximum
+        return meldingAux(cards);
+    }
 
-    // TBD
-    public boolean melding(Card... cards){ 
-        // 51 pts minimum for first meld. Verifications to be done in class Players
+    // TBD: Add the joker's value to pointsCount
+    public int meldingAux(List<Card> cards){ 
         boolean sameRank = true;
         boolean sameSuit = true;
         boolean valid = true;
         Suit currentSuit = null;
         Rank currentRank = null;
-        List<Integer> ranks = new ArrayList<>();
+        int pointsCount = 0;
 
-        while(sameRank || sameSuit){
+        while((sameRank || sameSuit) && valid){
             for( Card c : cards){
                 if(c.isJoker) continue;
                 if(currentRank == null){
@@ -68,26 +72,39 @@ public class Deck {
                 }  
                 if(c.rank != currentRank) sameRank = false;
                 if(c.suit != currentSuit) sameSuit = false;
-                
-                // Add the ranks of each card in the proposed meld to a list in ascending order
-                int index;
-                for(index=0; index<ranks.size();index++){
-                    if(c.rank.getValue() < ranks.get(index)) break; 
+            }
+            // Check if it is contiguous
+            int previousRank = 0;
+            for (int i=0;i< cards.size();i++){
+                if((previousRank==0) && cards.get(i).isJoker) continue;
+                if(cards.get(i).isJoker){
+                    previousRank++;
+                    continue;
                 }
-                ranks.add(index,c.rank.getValue()); // if(ranks.size() == 0) 
-                 
+                if(previousRank == 0){
+                    previousRank = cards.get(i).value;
+                    pointsCount = previousRank;
+                    if(!sameRank) continue;
+                }
+                if(sameRank){
+                    pointsCount = previousRank * cards.size();
+                    break;
+                }
+                if(cards.get(i).value == previousRank +1){
+                        previousRank = cards.get(i).value;
+                        pointsCount+= cards.get(i).value;
+                }
+                else{
+                        // Ace high
+                        if(!(previousRank == 10 && cards.get(i).value == 1 && i == cards.size() -1)) valid = false;
+                        pointsCount+= 10; 
+                }
             }
-            for (Integer r : ranks){
-                if (sameRank) break;
-                // Check if it is contiguous
-
-            }
-            if (sameRank && valid){
-                // Add to table
-            }
-
+            table.add(cards);
+            return pointsCount;
+            
         }
-        return false;
+        return -1;
 
     }
     public boolean layingOff(int card){
@@ -102,7 +119,7 @@ public class Deck {
         Card topCard = null;
         int notStockCounter=0;
 
-        for(int i=0; i<106;i++){
+        for(int i=0; i<deck.size();i++){
             if(deck.get(i).getLocation()== CardLocation.DISCARD){
                 if(i != topCardIndex){
                     deck.get(i).moveCard(CardLocation.STOCK);
