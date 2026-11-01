@@ -54,7 +54,6 @@ public class Deck {
         return meldingAux(cards);
     }
 
-    // TBD: Add the joker's value to pointsCount
     public int meldingAux(List<Card> cards){ 
         boolean sameRank = true;
         boolean sameSuit = true;
@@ -62,10 +61,14 @@ public class Deck {
         Suit currentSuit = null;
         Rank currentRank = null;
         int pointsCount = 0;
+        int jokersCount = 0;
 
-        while((sameRank || sameSuit) && valid){
+        while((sameRank || sameSuit) && valid && jokersCount < 2){
             for( Card c : cards){
-                if(c.isJoker) continue;
+                if(c.isJoker){
+                    jokersCount++;
+                    continue;
+                }
                 if(currentRank == null){
                     currentRank = c.rank;
                     currentSuit = c.suit;
@@ -76,20 +79,27 @@ public class Deck {
             // Check if it is contiguous
             int previousRank = 0;
             for (int i=0;i< cards.size();i++){
+                
+                // If joker is first:
                 if((previousRank==0) && cards.get(i).isJoker) continue;
+                // If joker is not first:
                 if(cards.get(i).isJoker){
                     previousRank++;
+                    pointsCount+= previousRank;
                     continue;
                 }
+                // First non joker card
                 if(previousRank == 0){
                     previousRank = cards.get(i).value;
-                    pointsCount = previousRank;
+                    pointsCount = previousRank+previousRank-1;
                     if(!sameRank) continue;
                 }
+                // If the meld is a set, calculate the final pointsCount and break
                 if(sameRank){
                     pointsCount = previousRank * cards.size();
                     break;
                 }
+                // The rest of the non joker cards
                 if(cards.get(i).value == previousRank +1){
                         previousRank = cards.get(i).value;
                         pointsCount+= cards.get(i).value;
@@ -100,16 +110,52 @@ public class Deck {
                         pointsCount+= 10; 
                 }
             }
-            table.add(cards);
+            // Adding to table to eventually be done at the main level to check points requirements for first meld
+            table.add(cards); 
             return pointsCount;
             
         }
         return -1;
 
     }
-    public boolean layingOff(int card){
+    public boolean layingOff(Card card){
+        if(card.isJoker) return false;
         for(List<Card> meld : table){
-
+            boolean sameRank = true;
+            if (!(meld.get(0).rank == meld.get(1).rank)) sameRank=false;
+            
+            // Check whether the card must be added at the beginning or the end
+            if((card.value == meld.get(0).value -1) && !meld.get(0).isJoker){
+                meld.add(0,card);
+                return true;
+            }
+            if((card.value == meld.get(meld.size()-1).value +1) && !meld.get(meld.size()-1).isJoker){
+                meld.add(card);
+                return true;
+            }
+            // Check whether this card replaces a joker
+            for(int i=0; i< meld.size()-1;i++){
+                if (meld.get(i).isJoker){
+                    if(i==0){
+                        if(card.value == meld.get(1).value -1){
+                            meld.add(0,card);
+                            return true;
+                        }
+                    }
+                    else if(i== meld.size()-1){
+                        if(card.value == meld.get(i-1).value +1){
+                            meld.add(i,card);
+                            return true;
+                        }
+                    }
+                    else{
+                        if((card.value == meld.get(i-1).value + 1)&&(card.value == meld.get(i+1).value -1)){
+                            meld.add(i,card);
+                            return true;
+                        }
+                    }
+                }
+            }
         }
         return false;
     }
